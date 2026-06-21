@@ -18,3 +18,5 @@ Token scanNumber(Lexer* lex);
 Token scanIdentifier(Lexer* lex);
 TokenType checkKeyword(const char *lexeme);
 char lookAhead(Lexer* lex);
+void skipLineComment(Lexer *lexer);
+void skipBlockComment(Lexer *lexer);

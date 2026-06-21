@@ -28,6 +28,14 @@ typedef enum
 
     TOKEN_SEMICOLON,
 
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+
+    TOKEN_LBRACE,
+    TOKEN_RBRACE,
+
+    TOKEN_COMMA,
+
     TOKEN_EOF,
     TOKEN_ERROR
 

@@ -16,6 +16,7 @@ char advance(Lexer* lex){
     return lex->source[lex->curr++];
 }
 
+
 char lookAhead(Lexer* lex){
     if(lex->source[lex->curr+1]!= '\0'){
         return lex->source[lex->curr+1];
@@ -32,7 +33,24 @@ void skipspace(Lexer *lexer){
         lexer->curr++;
     }
 }
+void skipBlockComment(Lexer *lexer){
+    while (!atEnd(lexer)){
+        if (peek(lexer) == '*' &&
+            lookAhead(lexer) == '/'){
+            advance(lexer);
+            advance(lexer);
 
+            return;
+        }
+
+        advance(lexer);
+    }
+}
+void skipLineComment(Lexer *lexer){
+    while (!atEnd(lexer) && peek(lexer) != '\n'){
+        advance(lexer);
+    }
+}
 Token makeToken(TokenType type, char* lexeme){
     Token t;
     t.type = type;
@@ -114,8 +132,27 @@ Token getToken(Lexer *lexer){
         case '*':
             return makeToken(TOKEN_STAR, "*");
 
-        case '/':
-            return makeToken(TOKEN_SLASH, "/");
+       case '/':
+
+    if (peek(lexer) == '/')
+    {
+        advance(lexer);
+
+        skipLineComment(lexer);
+
+        return getToken(lexer);
+    }
+
+    if (peek(lexer) == '*')
+    {
+        advance(lexer);
+
+        skipBlockComment(lexer);
+
+        return getToken(lexer);
+    }
+
+    return makeToken(TOKEN_SLASH, "/");
 
         case '=':
         if(peek(lexer) == '='){
@@ -144,7 +181,20 @@ Token getToken(Lexer *lexer){
             return makeToken(TOKEN_NOT_EQUAL_TO, "!=");}
             else  return makeToken(TOKEN_ERROR, "UNKNOWN");
 
-        
+        case '(':
+            return makeToken(TOKEN_LPAREN, "(");
+
+    case ')':
+        return makeToken(TOKEN_RPAREN, ")");
+
+    case '{':
+        return makeToken(TOKEN_LBRACE, "{");
+
+    case '}':
+        return makeToken(TOKEN_RBRACE, "}");
+
+case ',':
+    return makeToken(TOKEN_COMMA, ",");
     }
 
     return makeToken(TOKEN_ERROR, "UNKNOWN");
