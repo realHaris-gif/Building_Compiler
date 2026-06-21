@@ -14,3 +14,4 @@ int atEnd(Lexer* lex);
 void skipspace(Lexer* lexer);
 Token makeToken(TokenType type,char* lexeme);
 Token getToken(Lexer* lexer);
+Token scanNumber(Lexer* lex);

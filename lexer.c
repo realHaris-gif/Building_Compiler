@@ -34,19 +34,29 @@ Token makeToken(TokenType type, char* lexeme){
     return t;
 }
 
-Token getToken(Lexer *lexer)
-{
+Token scanNumber(Lexer* lex){
+    char buffer[100];
+    int i =0;
+    while(!atEnd(lex) && isdigit(peek(lex))){
+        buffer[i++] = advance(lex);
+    }
+    buffer[i] = '\0';
+    return makeToken(TOKEN_NUMBER,buffer);
+}
+Token getToken(Lexer *lexer){
     skipspace(lexer);
 
-    if (atEnd(lexer))
-    {
+    if (atEnd(lexer)) {
         return makeToken(TOKEN_EOF, "EOF");
+    }
+
+    if(isdigit(peek(lexer))){
+        return scanNumber(lexer);
     }
 
     char c = advance(lexer);
     
-    switch (c)
-    {
+    switch (c) {
         case '+':
             return makeToken(TOKEN_PLUS, "+");
 
