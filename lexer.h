@@ -8,6 +8,6 @@ typedef struct{
 
 
 void lexerinit(lexer* lex,char* source);
-void peek(lexer* lex);
-void advance(lexer* lex);
-void atEnd(lexer* lex);
+char peek(lexer* lex);
+char advance(lexer* lex);
+int atEnd(lexer* lex);
