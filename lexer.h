@@ -17,3 +17,4 @@ Token getToken(Lexer* lexer);
 Token scanNumber(Lexer* lex);
 Token scanIdentifier(Lexer* lex);
 TokenType checkKeyword(const char *lexeme);
+char lookAhead(Lexer* lex);

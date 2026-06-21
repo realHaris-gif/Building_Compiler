@@ -15,6 +15,13 @@ char peek(Lexer* lex){
 char advance(Lexer* lex){
     return lex->source[lex->curr++];
 }
+
+char lookAhead(Lexer* lex){
+    if(lex->source[lex->curr+1]!= '\0'){
+        return lex->source[lex->curr+1];
+    }
+    else return '\0';
+}
 int atEnd(Lexer* lex){
     return peek(lex)=='\0'; 
 }
@@ -29,7 +36,7 @@ void skipspace(Lexer *lexer){
 Token makeToken(TokenType type, char* lexeme){
     Token t;
     t.type = type;
-    t.lexeme = malloc(sizeof(lexeme+1));
+    t.lexeme = malloc(sizeof(lexeme)+1);
     strcpy(t.lexeme,lexeme);
     return t;
 }
@@ -77,14 +84,15 @@ Token scanIdentifier(Lexer* lex){
     TokenType type = checkKeyword(buffer);
     return makeToken(type,buffer);
 }
+
+
 Token getToken(Lexer *lexer){
+    
     skipspace(lexer);
 
     if (atEnd(lexer)) {
         return makeToken(TOKEN_EOF, "EOF");
     }
-
-    
 
     if(isdigit(peek(lexer))){
         return scanNumber(lexer);
@@ -110,10 +118,33 @@ Token getToken(Lexer *lexer){
             return makeToken(TOKEN_SLASH, "/");
 
         case '=':
-            return makeToken(TOKEN_ASSIGN, "=");
+        if(peek(lexer) == '='){
+            advance(lexer);
+            return makeToken(TOKEN_EQUAL_EQUAL, "==");
+        }
+        return makeToken(TOKEN_ASSIGN, "=");
 
         case ';':
             return makeToken(TOKEN_SEMICOLON, ";");
+        
+        case '>':
+            if(peek(lexer)=='='){
+             advance(lexer);
+             return makeToken(TOKEN_GREATER_THEN_EQUAL, ">=");}
+        
+            else  return makeToken(TOKEN_GREATER, ";");
+        case '<':
+        if(peek(lexer)=='=') {
+            advance(lexer);
+            return makeToken(TOKEN_LESS_THEN_EQUAL, "<=");}
+            else  return makeToken(TOKEN_LESS_THEN, "<=");
+        case '!':
+        if(peek(lexer)=='='){ 
+            advance(lexer);
+            return makeToken(TOKEN_NOT_EQUAL_TO, "!=");}
+            else  return makeToken(TOKEN_ERROR, "UNKNOWN");
+
+        
     }
 
     return makeToken(TOKEN_ERROR, "UNKNOWN");
