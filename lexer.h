@@ -4,10 +4,13 @@
 typedef struct{
  char* source;
  int curr;
-}lexer;
+}Lexer;
 
 
-void lexerinit(lexer* lex,char* source);
-char peek(lexer* lex);
-char advance(lexer* lex);
-int atEnd(lexer* lex);
+void lexerinit(Lexer* lex,char* source);
+char peek(Lexer* lex);
+char advance(Lexer* lex);
+int atEnd(Lexer* lex);
+void skipspace(Lexer* lexer);
+Token makeToken(TokenType type,char* lexeme);
+Token getToken(Lexer* lexer);
