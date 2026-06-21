@@ -15,3 +15,5 @@ void skipspace(Lexer* lexer);
 Token makeToken(TokenType type,char* lexeme);
 Token getToken(Lexer* lexer);
 Token scanNumber(Lexer* lex);
+Token scanIdentifier(Lexer* lex);
+TokenType checkKeyword(const char *lexeme);

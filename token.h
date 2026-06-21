@@ -4,6 +4,10 @@
 typedef enum
 {
     TOKEN_INT,
+    TOKEN_IF,
+    TOKEN_ELSE,
+    TOKEN_WHILE,
+    TOKEN_RETURN,
 
     TOKEN_IDENTIFIER,
     TOKEN_NUMBER,

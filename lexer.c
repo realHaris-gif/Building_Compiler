@@ -34,14 +34,48 @@ Token makeToken(TokenType type, char* lexeme){
     return t;
 }
 
+TokenType checkKeyword(const char *lexeme){
+    if (strcmp(lexeme, "int") == 0)
+        return TOKEN_INT;
+
+    if (strcmp(lexeme, "if") == 0)
+        return TOKEN_IF;
+
+    if (strcmp(lexeme, "else") == 0)
+        return TOKEN_ELSE;
+
+    if (strcmp(lexeme, "while") == 0)
+        return TOKEN_WHILE;
+
+    if (strcmp(lexeme, "return") == 0)
+        return TOKEN_RETURN;
+
+    return TOKEN_IDENTIFIER;
+}
+
 Token scanNumber(Lexer* lex){
     char buffer[100];
-    int i =0;
+    int i = 0;
     while(!atEnd(lex) && isdigit(peek(lex))){
         buffer[i++] = advance(lex);
     }
     buffer[i] = '\0';
     return makeToken(TOKEN_NUMBER,buffer);
+}
+
+
+Token scanIdentifier(Lexer* lex){
+    char buffer[100];
+    int i=0;
+    while (
+        !atEnd(lex) &&
+        (isalnum(peek(lex)) || peek(lex) == '_')
+    ){
+        buffer[i++] = advance(lex);
+    }
+    buffer[i] = '\0';
+    TokenType type = checkKeyword(buffer);
+    return makeToken(type,buffer);
 }
 Token getToken(Lexer *lexer){
     skipspace(lexer);
@@ -50,8 +84,14 @@ Token getToken(Lexer *lexer){
         return makeToken(TOKEN_EOF, "EOF");
     }
 
+    
+
     if(isdigit(peek(lexer))){
         return scanNumber(lexer);
+    }
+
+    if(isalnum(peek(lexer))){
+        return scanIdentifier(lexer);
     }
 
     char c = advance(lexer);
