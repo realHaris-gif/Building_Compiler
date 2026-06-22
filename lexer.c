@@ -5,15 +5,20 @@
 #include<string.h>
 
 
-void lexerinit(Lexer* lex,char* source){
+void lexerinit(Lexer* lex, char* source){
     lex->source = source;
     lex->curr = 0;
+    lex->line = 1;
 }
 char peek(Lexer* lex){
     return lex->source[lex->curr];
 }
 char advance(Lexer* lex){
-    return lex->source[lex->curr++];
+    char c = lex->source[lex->curr++];
+
+    if(c == '\n')  lex->line++;
+    
+    return c;
 }
 
 
@@ -28,9 +33,8 @@ int atEnd(Lexer* lex){
 }
 
 void skipspace(Lexer *lexer){
-     while (!atEnd(lexer) &&
-           isspace(lexer->source[lexer->curr])){
-        lexer->curr++;
+    while (!atEnd(lexer) &&  isspace(peek(lexer))){
+        advance(lexer);
     }
 }
 void skipBlockComment(Lexer *lexer){
@@ -52,9 +56,10 @@ void skipLineComment(Lexer *lexer){
     }
 }
 
- Token makeToken(TokenType type, char* lexeme){
+Token makeToken(Lexer *lex,TokenType type,char *lexeme){
     Token t;
     t.type = type;
+    t.line = lex->line;
     t.lexeme = malloc(strlen(lexeme) + 1);
     strcpy(t.lexeme, lexeme);
     return t;
@@ -87,7 +92,7 @@ Token scanNumber(Lexer* lex){
         buffer[i++] = advance(lex);
     }
     buffer[i] = '\0';
-    return makeToken(TOKEN_NUMBER,buffer);
+    return makeToken(lex,TOKEN_NUMBER,buffer);
 }
 
 Token scanString(Lexer *lexer){
@@ -98,13 +103,13 @@ Token scanString(Lexer *lexer){
     }
 
     if (atEnd(lexer)){
-        return makeToken(TOKEN_ERROR, "Unterminated String");
+        return makeToken(lexer,TOKEN_ERROR, "Unterminated String");
     }
 
     advance(lexer);
     buffer[i] = '\0';
 
-    return makeToken(TOKEN_STRING, buffer);
+    return makeToken(lexer,TOKEN_STRING, buffer);
 }
 Token scanIdentifier(Lexer* lex){
     char buffer[100];
@@ -117,7 +122,7 @@ Token scanIdentifier(Lexer* lex){
     }
     buffer[i] = '\0';
     TokenType type = checkKeyword(buffer);
-    return makeToken(type,buffer);
+    return makeToken(lex,type,buffer);
 }
 
 
@@ -126,7 +131,7 @@ Token getToken(Lexer *lexer){
     skipspace(lexer);
 
     if (atEnd(lexer)) {
-        return makeToken(TOKEN_EOF, "EOF");
+        return makeToken(lexer,TOKEN_EOF, "EOF");
     }
 
     if(isdigit(peek(lexer))){
@@ -144,13 +149,13 @@ Token getToken(Lexer *lexer){
     
     switch (c) {
         case '+':
-            return makeToken(TOKEN_PLUS, "+");
+            return makeToken(lexer,TOKEN_PLUS, "+");
 
         case '-':
-            return makeToken(TOKEN_MINUS, "-");
+            return makeToken(lexer,TOKEN_MINUS, "-");
 
         case '*':
-            return makeToken(TOKEN_STAR, "*");
+            return makeToken(lexer,TOKEN_STAR, "*");
 
        case '/':
              if (peek(lexer) == '/'){
@@ -165,50 +170,50 @@ Token getToken(Lexer *lexer){
 
                 return getToken(lexer);
             }
-            return makeToken(TOKEN_SLASH, "/");
+            return makeToken(lexer,TOKEN_SLASH, "/");
 
         case '=':
         if(peek(lexer) == '='){
             advance(lexer);
-            return makeToken(TOKEN_EQUAL_EQUAL, "==");
+            return makeToken(lexer,TOKEN_EQUAL_EQUAL, "==");
         }
-        return makeToken(TOKEN_ASSIGN, "=");
+        return makeToken(lexer,TOKEN_ASSIGN, "=");
 
         case ';':
-            return makeToken(TOKEN_SEMICOLON, ";");
+            return makeToken(lexer,TOKEN_SEMICOLON, ";");
         
         case '>':
             if(peek(lexer)=='='){
              advance(lexer);
-             return makeToken(TOKEN_GREATER_THEN_EQUAL, ">=");}
+             return makeToken(lexer,TOKEN_GREATER_THEN_EQUAL, ">=");}
         
-            else  return makeToken(TOKEN_GREATER, ";");
+            else  return makeToken(lexer,TOKEN_GREATER, ";");
         case '<':
         if(peek(lexer)=='=') {
             advance(lexer);
-            return makeToken(TOKEN_LESS_THEN_EQUAL, "<=");}
-            else  return makeToken(TOKEN_LESS_THEN, "<=");
+            return makeToken(lexer,TOKEN_LESS_THEN_EQUAL, "<=");}
+            else  return makeToken(lexer,TOKEN_LESS_THEN, "<=");
         case '!':
         if(peek(lexer)=='='){ 
             advance(lexer);
-            return makeToken(TOKEN_NOT_EQUAL_TO, "!=");}
-            else  return makeToken(TOKEN_ERROR, "UNKNOWN");
+            return makeToken(lexer,TOKEN_NOT_EQUAL_TO, "!=");}
+            else  return makeToken(lexer,TOKEN_ERROR, "UNKNOWN");
 
         case '(':
-            return makeToken(TOKEN_LPAREN, "(");
+            return makeToken(lexer,TOKEN_LPAREN, "(");
 
         case ')':
-            return makeToken(TOKEN_RPAREN, ")");
+            return makeToken(lexer,TOKEN_RPAREN, ")");
 
         case '{':
-            return makeToken(TOKEN_LBRACE, "{");
+            return makeToken(lexer,TOKEN_LBRACE, "{");
 
         case '}':
-            return makeToken(TOKEN_RBRACE, "}");
+            return makeToken(lexer,TOKEN_RBRACE, "}");
 
          case ',':
-            return makeToken(TOKEN_COMMA, ",");
+            return makeToken(lexer,TOKEN_COMMA, ",");
     }
 
-    return makeToken(TOKEN_ERROR, "UNKNOWN");
+    return makeToken(lexer,TOKEN_ERROR, "UNKNOWN");
 }
