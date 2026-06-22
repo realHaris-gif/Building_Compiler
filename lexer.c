@@ -51,13 +51,15 @@ void skipLineComment(Lexer *lexer){
         advance(lexer);
     }
 }
-Token makeToken(TokenType type, char* lexeme){
+
+ Token makeToken(TokenType type, char* lexeme){
     Token t;
     t.type = type;
-    t.lexeme = malloc(sizeof(lexeme)+1);
-    strcpy(t.lexeme,lexeme);
+    t.lexeme = malloc(strlen(lexeme) + 1);
+    strcpy(t.lexeme, lexeme);
     return t;
 }
+
 
 TokenType checkKeyword(const char *lexeme){
     if (strcmp(lexeme, "int") == 0)
@@ -88,7 +90,22 @@ Token scanNumber(Lexer* lex){
     return makeToken(TOKEN_NUMBER,buffer);
 }
 
+Token scanString(Lexer *lexer){
+    char buffer[256];
+    int i = 0;
+    while (!atEnd(lexer) && peek(lexer) != '"'){
+        buffer[i++] = advance(lexer);
+    }
 
+    if (atEnd(lexer)){
+        return makeToken(TOKEN_ERROR, "Unterminated String");
+    }
+
+    advance(lexer);
+    buffer[i] = '\0';
+
+    return makeToken(TOKEN_STRING, buffer);
+}
 Token scanIdentifier(Lexer* lex){
     char buffer[100];
     int i=0;
@@ -119,7 +136,10 @@ Token getToken(Lexer *lexer){
     if(isalnum(peek(lexer))){
         return scanIdentifier(lexer);
     }
-
+    if (peek(lexer) == '"'){
+    advance(lexer);
+    return scanString(lexer);
+    }
     char c = advance(lexer);
     
     switch (c) {
@@ -133,26 +153,19 @@ Token getToken(Lexer *lexer){
             return makeToken(TOKEN_STAR, "*");
 
        case '/':
+             if (peek(lexer) == '/'){
+                advance(lexer);
+                skipLineComment(lexer);
+                return getToken(lexer);
+                }
+            if (peek(lexer) == '*'){
+                advance(lexer);
 
-    if (peek(lexer) == '/')
-    {
-        advance(lexer);
+                skipBlockComment(lexer);
 
-        skipLineComment(lexer);
-
-        return getToken(lexer);
-    }
-
-    if (peek(lexer) == '*')
-    {
-        advance(lexer);
-
-        skipBlockComment(lexer);
-
-        return getToken(lexer);
-    }
-
-    return makeToken(TOKEN_SLASH, "/");
+                return getToken(lexer);
+            }
+            return makeToken(TOKEN_SLASH, "/");
 
         case '=':
         if(peek(lexer) == '='){
@@ -184,17 +197,17 @@ Token getToken(Lexer *lexer){
         case '(':
             return makeToken(TOKEN_LPAREN, "(");
 
-    case ')':
-        return makeToken(TOKEN_RPAREN, ")");
+        case ')':
+            return makeToken(TOKEN_RPAREN, ")");
 
-    case '{':
-        return makeToken(TOKEN_LBRACE, "{");
+        case '{':
+            return makeToken(TOKEN_LBRACE, "{");
 
-    case '}':
-        return makeToken(TOKEN_RBRACE, "}");
+        case '}':
+            return makeToken(TOKEN_RBRACE, "}");
 
-case ',':
-    return makeToken(TOKEN_COMMA, ",");
+         case ',':
+            return makeToken(TOKEN_COMMA, ",");
     }
 
     return makeToken(TOKEN_ERROR, "UNKNOWN");

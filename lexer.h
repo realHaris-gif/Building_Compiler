@@ -20,3 +20,4 @@ TokenType checkKeyword(const char *lexeme);
 char lookAhead(Lexer* lex);
 void skipLineComment(Lexer *lexer);
 void skipBlockComment(Lexer *lexer);
+Token scanString(Lexer *lexer);
