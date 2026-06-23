@@ -1,5 +1,5 @@
 #include "parser.h"
-
+#include<stdlib.h>
 void parserInit(Parser* parser, Lexer* lexer){
     parser->lexer = lexer;
     parser->current = getToken(lexer);
@@ -13,7 +13,7 @@ int match(Parser* parser, TokenType expected){
     return 1;
 }
 
-char advanceParser(Parser* parser){
+void advanceParser(Parser* parser){
      parser->current = getToken(parser->lexer);
 }
 

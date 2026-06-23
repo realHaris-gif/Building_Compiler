@@ -1,3 +1,6 @@
+#ifndef LEXER_H
+#define LEXER_H
+
 #include<stdio.h>
 #include"token.h"
 
@@ -22,3 +25,5 @@ char lookAhead(Lexer* lex);
 void skipLineComment(Lexer *lexer);
 void skipBlockComment(Lexer *lexer);
 Token scanString(Lexer *lexer);
+
+#endif
