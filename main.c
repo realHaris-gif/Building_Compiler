@@ -1,30 +1,79 @@
 #include <stdio.h>
-#include "lexer.h"
+#include "ast.h"
 
 
+void printAST(ASTNode* node)
+{
+    if(node->type == AST_NUMBER)
+    {
+        NumberNode* num =
+            (NumberNode*)node;
+
+        printf("%d",
+               num->value);
+
+        return;
+    }
+
+    if(node->type == AST_BINARY)
+    {
+        BinaryNode* bin =
+            (BinaryNode*)node;
+
+        printf("(");
+
+        printAST(bin->left);
+
+        switch(bin->op)
+        {
+            case TOKEN_PLUS:
+                printf(" + ");
+                break;
+
+            case TOKEN_MINUS:
+                printf(" - ");
+                break;
+
+            case TOKEN_STAR:
+                printf(" * ");
+                break;
+
+            case TOKEN_SLASH:
+                printf(" / ");
+                break;
+
+            default:
+                break;
+        }
+
+        printAST(bin->right);
+
+        printf(")");
+    }
+}
 void printToken(Token token)
 {
-    printf("Type: %d, Lexeme: %s\n",
-           token.type,
-           token.lexeme);
+    printf("Type=%d  Lexeme=%s  Line=%d\n",
+    token.type,
+    token.lexeme,
+    token.line
+);
 }
 
 int main()
 {
-    char source[] = "x = a / b;";
+  
+    char source[] = "5+3*2+5*10/10";
 
     Lexer lexer;
-
     lexerinit(&lexer, source);
 
-    Token token;
+    Parser parser;
+    parserInit(&parser, &lexer);
 
-    do
-    {
-        token = getToken(&lexer);
-        printToken(token);
+    ASTNode* root = parseExpression(&parser);
 
-    } while (token.type != TOKEN_EOF);
+    printAST(root);
 
     return 0;
 }
