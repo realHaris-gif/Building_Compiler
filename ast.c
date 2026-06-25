@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "ast.h"
-
+#include <string.h>
 
 NumberNode* createNumberNode(int value){
     NumberNode* node =  malloc(sizeof(NumberNode));
@@ -39,10 +39,38 @@ BinaryNode* createBinaryNode( TokenType op,  ASTNode* left, ASTNode* right){
     return node;
 }
 
+AssignmentNode* createAssignmentNode(char* name,ASTNode* value){
+    AssignmentNode* node = malloc(sizeof(AssignmentNode));
+    node->type = AST_ASSIGNMENT;
+    node->name = malloc(strlen(name) + 1);
+    strcpy(node->name,name);
+    node->value = value;
+    return node;
+}
+
+VariableNode* createVariableNode(char* variableName){
+    VariableNode* node = malloc(sizeof(VariableNode));
+    
+    node->type = AST_VARIABLE;
+    node->name = malloc(strlen(variableName) + 1);;
+    strcpy(node->name,variableName);
+    return node;
+
+}
+
+ASTNode* parseIdentifier(Parser* parser){
+    VariableNode* node = createVariableNode(parser->current.lexeme);
+    consume(parser, TOKEN_IDENTIFIER);
+    return (ASTNode*)node;
+}
 ASTNode* parsePrimary(Parser* parser){
     if(parser->current.type == TOKEN_NUMBER) {
         return parseNumber(parser);
     }
+     if(parser->current.type == TOKEN_IDENTIFIER){
+        return parseIdentifier(parser);
+    }
+
      if(parser->current.type == TOKEN_LPAREN){
         consume(parser, TOKEN_LPAREN);
 
@@ -63,7 +91,7 @@ ASTNode* parseFactor(Parser* parser){
 
         ASTNode* operand = parseFactor(parser);
 
-        return createUnaryNode( TOKEN_PLUS,operand);
+        return (ASTNode*)createUnaryNode( TOKEN_PLUS,operand);
     }
 
     if(parser->current.type == TOKEN_MINUS) {
@@ -71,7 +99,7 @@ ASTNode* parseFactor(Parser* parser){
 
         ASTNode* operand = parseFactor(parser);
 
-        return createUnaryNode(TOKEN_MINUS,operand);
+        return (ASTNode*)createUnaryNode(TOKEN_MINUS,operand);
     }
     return parsePrimary(parser);
 }
@@ -96,7 +124,7 @@ ASTNode* parseTerm(Parser* parser)
     return left;
 }
 
-ASTNode* parseExpression(Parser* parser){
+ASTNode* parseAdditive(Parser* parser){
     ASTNode* left = parseTerm(parser);
 
     while(parser->current.type == TOKEN_PLUS ||
@@ -112,3 +140,24 @@ ASTNode* parseExpression(Parser* parser){
 
     return left;
 }
+
+ASTNode* parseAssignment(Parser* parser){
+    if( parser->current.type == TOKEN_IDENTIFIER &&
+        parser->next.type == TOKEN_ASSIGN) {
+        char* name =parser->current.lexeme;
+
+        consume(parser, TOKEN_IDENTIFIER);
+        consume(parser, TOKEN_ASSIGN);
+
+
+        ASTNode* value = parseAssignment(parser);
+
+        return (ASTNode*)  createAssignmentNode( name,value);
+    }
+
+    return parseAdditive(parser);
+}
+
+ASTNode*parseExpression(Parser* parser){
+    return parseAssignment(parser);
+};

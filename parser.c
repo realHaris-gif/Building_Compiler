@@ -3,6 +3,7 @@
 void parserInit(Parser* parser, Lexer* lexer){
     parser->lexer = lexer;
     parser->current = getToken(lexer);
+    parser->next = getToken(lexer);
 }
 
 int match(Parser* parser, TokenType expected){
@@ -14,15 +15,22 @@ int match(Parser* parser, TokenType expected){
 }
 
 void advanceParser(Parser* parser){
-     parser->current = getToken(parser->lexer);
+     parser->current = parser->next;
+    parser->next = getToken(parser->lexer);
 }
 
-void consume(Parser* parser, TokenType expected){
-    if(parser->current.type != expected){
-        printf( "Parser Error at line %d\n",
-            parser->current.line
-        );
-        exit(1);
+   void consume(Parser* parser, TokenType expected){
+
+    if(parser->current.type == expected)
+    {
+        advanceParser(parser);
+        return;
     }
-    advanceParser(parser);
+
+    printf(
+        "Parser Error at line %d\n",
+        parser->current.line
+    );
+
+    exit(1);
 }
