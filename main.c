@@ -62,7 +62,7 @@ void printToken(Token token)
 
 int main(){
 
-    char source[] = "a = b = 5";
+    char source[] = "x = 5;\n5+10";
 
     Lexer lexer;
     lexerinit(&lexer, source);
@@ -70,14 +70,9 @@ int main(){
     Parser parser;
     parserInit(&parser, &lexer);
 
-    ASTNode* root =
-        parseExpression(&parser);
-
-    if(root != NULL){
-        printf("Parsing completed successfully.\n");
-    }
+    StatementNode* statement = parseStatement(&parser);
+    printf("Statement parsed successfully.\n");
 
     return 0;
-
-
 }
+

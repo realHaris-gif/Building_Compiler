@@ -6,7 +6,9 @@ typedef enum{
     AST_BINARY,
     AST_UNARY,
     AST_VARIABLE,
-    AST_ASSIGNMENT
+    AST_ASSIGNMENT,
+    AST_EXPRESSION_STATEMENT,
+    AST_PROGRAM
 } ASTNodeType;
 
 typedef struct ASTNode{
@@ -19,6 +21,24 @@ typedef struct{
     ASTNode* value;
 
 } AssignmentNode;
+
+typedef struct StatementNode{
+    ASTNodeType type;
+} StatementNode;
+
+typedef struct{
+    ASTNodeType type;
+    ASTNode* expression;
+}ExpressionStatementNode;
+
+
+typedef struct{
+    ASTNodeType type;
+    ExpressionStatementNode* statements;
+    int statementCount;
+}ProgramNode;
+
+
 
 typedef struct{
     ASTNodeType type;
@@ -49,16 +69,22 @@ typedef struct{
 } VariableNode;
 
 //Prototypes
-NumberNode* createNumberNode(int value);
-ASTNode* parseNumber(Parser* parser);
-BinaryNode* createBinaryNode( TokenType op,  ASTNode* left, ASTNode* right);
+
 ASTNode* parseExpression(Parser* parser);
 ASTNode* parseTerm(Parser* parser);
 ASTNode* parseFactor(Parser* parser);
 ASTNode* parsePrimary(Parser* parser);
-UnaryNode*createUnaryNode( TokenType op, ASTNode* operand);
-VariableNode* createVariableNode(char* variableName);
+ASTNode* parseNumber(Parser* parser);
 ASTNode* parseAssignment(Parser* parser);
 ASTNode* parseAdditive(Parser* parser);
-ASTNode*parseExpression(Parser* parser);
+ASTNode* parseExpression(Parser* parser);
+StatementNode* parseStatement(Parser* parser);
+
+NumberNode* createNumberNode(int value);
+BinaryNode* createBinaryNode( TokenType op,  ASTNode* left, ASTNode* right);
+UnaryNode*createUnaryNode( TokenType op, ASTNode* operand);
+VariableNode* createVariableNode(char* variableName);
+ExpressionStatementNode* createExpressionStatementNode(ASTNode* expression);
+ProgramNode* createProgramNode();
+
 #endif

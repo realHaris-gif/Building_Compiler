@@ -9,8 +9,7 @@ NumberNode* createNumberNode(int value){
     return node;
 }
 UnaryNode*createUnaryNode( TokenType op,  ASTNode* operand){
-    UnaryNode* node =
-        malloc(sizeof(UnaryNode));
+    UnaryNode* node = malloc(sizeof(UnaryNode));
 
     node->type = AST_UNARY;
     node->op = op;
@@ -80,7 +79,6 @@ ASTNode* parsePrimary(Parser* parser){
 
         return expr;
     }
-    printf("Expected number\n");
     exit(1);
 }
 
@@ -161,3 +159,26 @@ ASTNode* parseAssignment(Parser* parser){
 ASTNode*parseExpression(Parser* parser){
     return parseAssignment(parser);
 };
+
+
+ExpressionStatementNode* createExpressionStatementNode( ASTNode* expression){
+    ExpressionStatementNode* node = malloc(sizeof(ExpressionStatementNode));
+    node->expression = expression;
+    node->type = AST_EXPRESSION_STATEMENT;
+    return node;
+}
+ProgramNode* createProgramNode(){
+    ProgramNode* node = malloc(sizeof(ProgramNode));
+    node->statementCount = 0;
+    node->statements =NULL;
+    node->type = AST_PROGRAM ;
+    return node;
+}
+
+
+StatementNode* parseStatement(Parser* parser){
+
+    ASTNode* expression = parseExpression(parser);
+    consume(parser,TOKEN_SEMICOLON);
+    return (StatementNode*)createExpressionStatementNode(expression);
+}

@@ -21,8 +21,7 @@ void advanceParser(Parser* parser){
 
    void consume(Parser* parser, TokenType expected){
 
-    if(parser->current.type == expected)
-    {
+    if(parser->current.type == expected){
         advanceParser(parser);
         return;
     }
