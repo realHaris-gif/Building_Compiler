@@ -34,7 +34,7 @@ typedef struct{
 
 typedef struct{
     ASTNodeType type;
-    ExpressionStatementNode* statements;
+    StatementNode** statements;
     int statementCount;
 }ProgramNode;
 
@@ -86,5 +86,6 @@ UnaryNode*createUnaryNode( TokenType op, ASTNode* operand);
 VariableNode* createVariableNode(char* variableName);
 ExpressionStatementNode* createExpressionStatementNode(ASTNode* expression);
 ProgramNode* createProgramNode();
-
+void addStatement(ProgramNode* program,StatementNode* statement);
+ProgramNode* parseProgram(Parser* parser);
 #endif

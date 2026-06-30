@@ -62,15 +62,17 @@ void printToken(Token token)
 
 int main(){
 
-    char source[] = "x = 5;\n5+10";
+    char source[] ="x = 5;y = 10;";
 
     Lexer lexer;
     lexerinit(&lexer, source);
 
     Parser parser;
     parserInit(&parser, &lexer);
+    ProgramNode* program =
+    parseProgram(&parser);
 
-    StatementNode* statement = parseStatement(&parser);
+    printf("Statements parsed: %d\n",program->statementCount);
     printf("Statement parsed successfully.\n");
 
     return 0;

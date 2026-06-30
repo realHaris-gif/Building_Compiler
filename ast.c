@@ -177,8 +177,25 @@ ProgramNode* createProgramNode(){
 
 
 StatementNode* parseStatement(Parser* parser){
-
     ASTNode* expression = parseExpression(parser);
     consume(parser,TOKEN_SEMICOLON);
     return (StatementNode*)createExpressionStatementNode(expression);
+}
+
+
+void addStatement(ProgramNode* program,  StatementNode* statement){
+    int currentStatementCount = program->statementCount;
+    program->statements = realloc(program->statements,(1+currentStatementCount)*sizeof(StatementNode*));
+    program->statements[currentStatementCount] = statement;
+    program->statementCount++;
+    return;    
+}
+
+ProgramNode* parseProgram(Parser* parser){
+    ProgramNode* program = createProgramNode();
+    while(parser->current.type!=TOKEN_EOF){
+        StatementNode* statement = parseStatement(parser);
+        addStatement(program,statement);
+    }
+    return program;
 }
